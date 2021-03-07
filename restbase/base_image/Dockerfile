@@ -1,5 +1,7 @@
 FROM ubuntu:16.04
 
+
+
 # Add the PostgreSQL PGP key to verify their Debian packages.
 # It should be the same key as https://www.postgresql.org/media/keys/ACCC4CF8.asc
 RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
@@ -51,3 +53,9 @@ RUN apt-get install -y build-essential python3.6 python3.6-dev python3-pip pytho
 # update pip
 RUN python3.6 -m pip install pip --upgrade
 RUN python3.6 -m pip install wheel
+
+COPY requirements.txt .
+
+RUN python3.6 -m venv ./venv
+RUN /bin/sh ./venv/bin/activate
+RUN pip3 install -r requirements.txt
