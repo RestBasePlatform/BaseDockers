@@ -18,6 +18,7 @@ pipeline {
         
         stage("Build tests image"){
             steps{
+                script{
                 dir(path: 'restbase/base_image') {
                 image_name = sh (
                         script: 'echo ${PWD##*/}',
@@ -26,16 +27,19 @@ pipeline {
                 dockerImageBaseImage = docker.build username+image_name
             }
             }
+            }
         }
 
         stage("Build base image"){
             steps{
+                script{
                 dir(path: 'restbase/tests_base_image') {
                 image_name = sh (
                         script: 'echo ${PWD##*/}',
                         returnStdout: true
                 ).trim()
                 dockerImageTest = docker.build username+image_name
+            }
             }
             }
         }
