@@ -11,8 +11,10 @@ pipeline {
 
     stages {
         stage("Checkout"){
-            script{
-                println(env.BRANCH_NAME)
+            steps {
+                script {
+                    println(env.BRANCH_NAME)
+                }
             }
         }
     }
