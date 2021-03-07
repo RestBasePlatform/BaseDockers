@@ -15,17 +15,34 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '**']], extensions: [], userRemoteConfigs: [[credentialsId: 'restbaseapi_git', url: 'https://github.com/RestBaseApi/BaseDockers']]])
             }
         }
+        
+        parallel {
+            stage("Build base_image"){
+                steps{
+                    script{
 
-        stage("Build"){
-            steps{
-                script{
+                        dir(path: 'restbase/base_image') {
+                            image_name = sh (
+                                    script: 'echo ${PWD##*/}',
+                                    returnStdout: true
+                            ).trim()
+                            dockerImageBaseImage = docker.build username+image_name
+                        }
+                    }
+                }
+            }
+            
+            stage("Build docker tests"){
+                steps{
+                    script{
 
-                    dir(path: 'restbase/base_image') {
-                        image_name = sh (
-                                script: 'echo ${PWD##*/}',
-                                returnStdout: true
-                        ).trim()
-                        dockerImage = docker.build username+image_name
+                        dir(path: 'restbase/tests_base_image') {
+                            image_name = sh (
+                                    script: 'echo ${PWD##*/}',
+                                    returnStdout: true
+                            ).trim()
+                            dockerImageBaseImage = docker.build username+image_name
+                        }
                     }
                 }
             }
@@ -34,12 +51,11 @@ pipeline {
             steps{
                 script{
                     docker.withRegistry('https://index.docker.io/v1/', registryCredential ) {
-//                        dockerImage.push('latest')
                         if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == 'main')){
-                            dockerImage.push('latest')
+                            dockerImageBaseImage.push('latest')
                         }
                         else {
-                            dockerImage.push(env.BRANCH_NAME)
+                            dockerImageBaseImage.push(env.BRANCH_NAME)
                         }
                     }
                 }
