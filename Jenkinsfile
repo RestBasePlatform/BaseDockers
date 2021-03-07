@@ -16,25 +16,25 @@ pipeline {
             }
         }
         
-            stage("Build images"){
-                            parallel([
-                        hello: {
-                            echo "hello"
-                        },
-                        world: {
-                            echo "world"
-                        }, 
-                        build: {
-                            dir(path: 'restbase/base_image') {
-                            image_name = sh (
-                                    script: 'echo ${PWD##*/}',
-                                    returnStdout: true
-                            ).trim()
-                            dockerImageBaseImage = docker.build username+image_name
-                        }
-                        }
-                    ])
+        stage("Build tests image"){
+                dir(path: 'restbase/base_image') {
+                image_name = sh (
+                        script: 'echo ${PWD##*/}',
+                        returnStdout: true
+                ).trim()
+                dockerImageBaseImage = docker.build username+image_name
             }
+        }
+
+        stage("Build base image"){
+                dir(path: 'restbase/tests_base_image') {
+                image_name = sh (
+                        script: 'echo ${PWD##*/}',
+                        returnStdout: true
+                ).trim()
+                dockerImageTest = docker.build username+image_name
+            }
+        }
     
         stage("Push"){
             steps{
@@ -42,9 +42,11 @@ pipeline {
                     docker.withRegistry('https://index.docker.io/v1/', registryCredential ) {
                         if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == 'main')){
                             dockerImageBaseImage.push('latest')
+                            dockerImageTest.push('latest')
                         }
                         else {
                             dockerImageBaseImage.push(env.BRANCH_NAME)
+                            dockerImageTest.push(env.BRANCH_NAME)
                         }
                     }
                 }
