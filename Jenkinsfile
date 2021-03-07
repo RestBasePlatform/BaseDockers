@@ -16,37 +16,26 @@ pipeline {
             }
         }
         
-        parallel {
-            stage("Build base_image"){
-                steps{
-                    script{
-
-                        dir(path: 'restbase/base_image') {
+            stage("Build images"){
+                            parallel([
+                        hello: {
+                            echo "hello"
+                        },
+                        world: {
+                            echo "world"
+                        }, 
+                        build: {
+                            dir(path: 'restbase/base_image') {
                             image_name = sh (
                                     script: 'echo ${PWD##*/}',
                                     returnStdout: true
                             ).trim()
                             dockerImageBaseImage = docker.build username+image_name
                         }
-                    }
-                }
-            }
-            
-            stage("Build docker tests"){
-                steps{
-                    script{
-
-                        dir(path: 'restbase/tests_base_image') {
-                            image_name = sh (
-                                    script: 'echo ${PWD##*/}',
-                                    returnStdout: true
-                            ).trim()
-                            dockerImageBaseImage = docker.build username+image_name
                         }
-                    }
-                }
+                    ])
             }
-        }
+    
         stage("Push"){
             steps{
                 script{
