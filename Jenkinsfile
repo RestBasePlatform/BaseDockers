@@ -7,7 +7,7 @@ pipeline {
         dockerImage = ''
     }
 
-    agent any
+    agent "slave-1"
 
     stages {
         stage("Checkout"){
