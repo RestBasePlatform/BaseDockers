@@ -16,31 +16,32 @@ pipeline {
             }
         }
         
-        stage("Build tests image"){
+        stage("Build docker images"){
             steps{
-                script{
-                dir(path: 'restbase/base_image') {
-                image_name = sh (
-                        script: 'echo ${PWD##*/}',
-                        returnStdout: true
-                ).trim()
-                dockerImageBaseImage = docker.build username+image_name
-            }
-            }
-            }
-        }
-
-        stage("Build base image"){
-            steps{
-                script{
-                dir(path: 'restbase/tests_base_image') {
-                image_name = sh (
-                        script: 'echo ${PWD##*/}',
-                        returnStdout: true
-                ).trim()
-                dockerImageTest = docker.build username+image_name
-            }
-            }
+                parallel(
+                    base_image: {
+                    script{
+                        dir(path: 'restbase/base_image') {
+                            image_name = sh (
+                                    script: 'echo ${PWD##*/}',
+                                    returnStdout: true
+                            ).trim()
+                            dockerImageBaseImage = docker.build username+image_name
+                        }
+                    }
+                }, 
+                'test_image':{
+                    script{
+                        dir(path: 'restbase/tests_base_image') {
+                            image_name = sh (
+                                    script: 'echo ${PWD##*/}',
+                                    returnStdout: true
+                            ).trim()
+                            dockerImageTest = docker.build username+image_name
+                        }
+                    }
+                }
+                )
             }
         }
     
@@ -63,8 +64,10 @@ pipeline {
 
         stage("Clear"){
             steps{
-                script{
-                    sh 'docker rmi -f $(docker image ls -aq)'
+                catchError (buildResult: 'SUCCESS', stageResult: 'SUCCESS'){
+                    script{
+                        sh 'docker rmi -f $(docker image ls -aq)'
+                    }
                 }
             }
         }
