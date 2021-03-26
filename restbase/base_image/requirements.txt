@@ -15,3 +15,4 @@ sql-metadata==1.11.0
 mysql-connector-python
 mysqlclient
 PyMySQL
+loguru==0.5.3
