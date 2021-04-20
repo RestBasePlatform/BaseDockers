@@ -19,7 +19,7 @@ pipeline {
         stage("Build docker images"){
             steps{
                 parallel(
-                    base_image: {
+                    base_image_postgres: {
                     script{
                         dir(path: 'restbase/base_image') {
                             image_name = sh (
@@ -30,7 +30,18 @@ pipeline {
                         }
                     }
                 }, 
-                'test_image':{
+                base_image_no_postgres: {
+                    script{
+                        dir(path: 'restbase/base_image_no_postgres') {
+                            image_name = sh (
+                                    script: 'echo ${PWD##*/}',
+                                    returnStdout: true
+                            ).trim()
+                            dockerImageBaseImageNoPostgres = docker.build username+image_name
+                        }
+                    }
+                },
+                test_image:{
                     script{
                         dir(path: 'restbase/tests_base_image') {
                             image_name = sh (
@@ -52,10 +63,12 @@ pipeline {
                         if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == 'main')){
                             dockerImageBaseImage.push('latest')
                             dockerImageTest.push('latest')
+                            dockerImageBaseImageNoPostgres.push('latest')
                         }
                         else {
                             dockerImageBaseImage.push(env.BRANCH_NAME)
                             dockerImageTest.push(env.BRANCH_NAME)
+                            dockerImageBaseImageNoPostgres.push(env.BRANCH_NAME)
                         }
                     }
                 }
