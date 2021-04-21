@@ -1,5 +1,7 @@
 FROM python:3.6-slim
 
+RUN apt-get install -y libmysqlclient-dev
+
 COPY requirements.txt .
 
 RUN python3.6 -m venv ./venv
