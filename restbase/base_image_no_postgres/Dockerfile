@@ -1,8 +1,7 @@
 FROM python:3.6-slim
 
-RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update
-
-RUN apt-get install -y libmysqlclient-dev
+RUN apt-get update && apt-get install libssl-dev
+RUN apt-get install -y gcc default-libmysqlclient-dev
 
 COPY requirements.txt .
 
