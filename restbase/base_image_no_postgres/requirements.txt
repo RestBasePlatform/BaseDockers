@@ -16,3 +16,5 @@ mysql-connector-python
 mysqlclient
 PyMySQL
 loguru==0.5.3
+fastapi
+uvicorn
