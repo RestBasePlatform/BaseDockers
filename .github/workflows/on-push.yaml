@@ -14,9 +14,9 @@ jobs:
        - name: Publish Docker to Docker Hub
          uses: elgohr/Publish-Docker-Github-Action@master
          with:
-           name: restbase/restbase-server-dev
+           name: restbase/base_image
            username: ${{ secrets.DOCKER_USERNAME }}
            password: ${{ secrets.DOCKER_PASSWORD }}
            dockerfile: Dockerfile
-           workdir: restbase/base_image_no_postgres/
+           workdir: restbase/base_image/
            tags: "fastapi"
